@@ -9,15 +9,15 @@ class Obs
 end
 DataMapper.finalize
 
-configure do
-  DataMapper.setup(:default, ENV['DATABASE_URL'] || 'sqlite::memory:')
-end
-
 configure :development do
   require 'sinatra/reloader'
   DataMapper::Logger.new($stdout, :debug)
   DataMapper.setup(:default, "sqlite://#{Dir.pwd}/db/fdi_development.sqlite3")
   DataMapper.auto_upgrade!
+end
+
+configure :test do
+  DataMapper.setup(:default, 'sqlite::memory:')
 end
 
 get '/' do
