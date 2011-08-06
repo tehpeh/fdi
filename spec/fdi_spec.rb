@@ -1,10 +1,25 @@
 require 'spec_helper'
 
 describe 'fdi' do
+  let(:accept_json) { {'HTTP_ACCEPT' => 'application/json'} }
+
   describe 'GET /' do
     it 'responds ok' do
       get '/'
       last_response.should be_ok
+    end
+  end
+
+  describe 'GET /obs.json' do
+    let(:obs) { double('Obs') }
+
+    before(:each) {
+      Obs.should_receive(:all).and_return(obs)
+      get '/obs.json', nil, accept_json
+    }
+
+    it 'returns all Obs as JSON' do
+      last_response.body.should == obs.to_json
     end
   end
 end

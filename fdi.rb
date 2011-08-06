@@ -51,10 +51,13 @@ configure :test do
 end
 
 get '/' do
-  status 200
   out = ""
   Obs.all.each do |o|
     out += "#{o.to_json}<br>"
   end
   "Obs:<br>#{out}"
+end
+
+get '/obs.json', :provides => :json do
+  Obs.all.to_json
 end
