@@ -45,6 +45,13 @@ configure :development do
   end
 end
 
+configure :production do
+  DataMapper.setup(:default, ENV['DATABASE_URL'])
+  unless process == 'rake'
+    DataMapper.auto_upgrade!
+  end
+end
+
 configure :test do
   DataMapper.setup(:default, 'sqlite::memory:')
 end
