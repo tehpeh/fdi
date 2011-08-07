@@ -47,9 +47,7 @@ end
 
 configure :production do
   DataMapper.setup(:default, ENV['DATABASE_URL'])
-  unless process == 'rake'
-    DataMapper.auto_upgrade!
-  end
+  DataMapper.auto_upgrade!
 end
 
 configure :test do
