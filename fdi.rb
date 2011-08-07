@@ -45,19 +45,34 @@ configure :development do
   end
 end
 
-# controllers
 configure :test do
   DataMapper.setup(:default, 'sqlite::memory:')
 end
 
+# controllers
 get '/' do
-  out = ""
-  Obs.all.each do |o|
-    out += "#{o.to_json}<br>"
-  end
-  "Obs:<br>#{out}"
 end
 
-get '/obs.json', :provides => :json do
+get '/obs/?', :provides => :json do
   Obs.all.to_json
+end
+
+get '/obs/:id', :provides => :json do
+  if obs = Obs.get(params[:id])
+    obs.to_json
+  else
+    status 404
+  end
+end
+
+post '/obs/?', :provides => :json do
+  obs = Obs.new(params[:obs])
+  if obs.save
+    status 201
+    headers['location'] = "/obs/#{obs.id}"
+    obs.to_json
+  else
+    status 400
+    obs.errors.to_hash.to_json
+  end
 end

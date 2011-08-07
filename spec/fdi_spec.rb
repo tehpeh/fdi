@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+#curl -w "\ncontent-type: %{content_type}\nhttp-code: %{http_code}\n" -H "HTTP_ACCEPT: application/json" localhost:4567/
+
 describe 'fdi' do
   let(:accept_json) { {'HTTP_ACCEPT' => 'application/json'} }
 
@@ -10,23 +12,47 @@ describe 'fdi' do
     end
   end
 
-  describe 'GET /obs.json' do
-    let(:obs) { double('Obs') }
+  context 'Obs API' do
+    let(:obs) { double('Obs', :id => 1).as_null_object }
 
-    before(:each) {
-      Obs.should_receive(:all).and_return(obs)
-      get '/obs.json', nil, accept_json
-    }
+    describe 'GET /obs' do
+      it 'returns all Obs as JSON' do
+        Obs.should_receive(:all).and_return([obs])
+        get '/obs', nil, accept_json
+        last_response.body.should == [obs].to_json
+      end
+    end
 
-    it 'returns all Obs as JSON' do
-      last_response.body.should == obs.to_json
+    describe 'GET /obs/1' do
+      it 'returns the Obs as JSON' do
+        Obs.should_receive(:get).with("1").and_return(obs)
+        get '/obs/1', nil, accept_json
+        last_response.body.should == obs.to_json
+      end
+    end
+
+    describe 'POST /obs' do
+      it 'creates a new Obs' do
+        params = { :obs => {
+          "time" => DateTime.now.to_s,
+          "temperature" => "30.0",
+          "drought_factor" => "7",
+          "wind_speed" => "60.0",
+          "relative_humidity" => "10.0"} }
+
+        Obs.should_receive(:new).with(params[:obs]).and_return(obs)
+        post '/obs', params, accept_json
+        last_response.body.should == obs.to_json
+        last_response.status.should == 201
+        last_response.headers['location'].should == "/obs/1"
+      end
     end
   end
 end
 
 describe Obs do
   let(:valid_attributes) { {
-    :time => DateTime.now,
+    :time => Time.now,
     :temperature => 30.0,
     :drought_factor => 7,
     :wind_speed => 60.0,
