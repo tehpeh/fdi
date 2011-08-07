@@ -51,6 +51,8 @@ end
 
 # controllers
 get '/' do
+  content_type :html
+  send_file 'public/index.html'
 end
 
 get '/obs/?', :provides => :json do
@@ -62,6 +64,7 @@ get '/obs/:id', :provides => :json do
     obs.to_json
   else
     status 404
+    { :error => 'Not found' }.to_json
   end
 end
 
@@ -69,10 +72,20 @@ post '/obs/?', :provides => :json do
   obs = Obs.new(params[:obs])
   if obs.save
     status 201
-    headers['location'] = "/obs/#{obs.id}"
+    headers['Location'] = "/obs/#{obs.id}"
     obs.to_json
   else
     status 400
     obs.errors.to_hash.to_json
   end
+end
+
+not_found do
+  status 404
+  "Not found"
+end
+
+error do
+  status 500
+  "Server error"
 end
