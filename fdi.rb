@@ -36,6 +36,10 @@ def process
 end
 
 # sinatra
+configure :production do
+  require 'newrelic_rpm'
+end
+
 configure :development do
   require 'sinatra/reloader'
   ENV['DATABASE_URL'] = "sqlite://#{Dir.pwd}/db/fdi_development.sqlite3"
