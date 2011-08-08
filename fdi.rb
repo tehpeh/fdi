@@ -38,20 +38,17 @@ end
 # sinatra
 configure :development do
   require 'sinatra/reloader'
-  DataMapper.setup(:default, "sqlite://#{Dir.pwd}/db/fdi_development.sqlite3")
-  unless process == 'rake'
-    DataMapper::Logger.new($stdout, :debug)
-    DataMapper.auto_upgrade!
-  end
-end
-
-configure :production do
-  DataMapper.setup(:default, ENV['DATABASE_URL'])
-  DataMapper.auto_upgrade!
+  ENV['DATABASE_URL'] = "sqlite://#{Dir.pwd}/db/fdi_development.sqlite3"
+  DataMapper::Logger.new($stdout, :debug) unless process == 'rake'
 end
 
 configure :test do
-  DataMapper.setup(:default, 'sqlite::memory:')
+  ENV['DATABASE_URL'] = 'sqlite::memory:'
+end
+
+configure do
+  DataMapper.setup(:default, ENV['DATABASE_URL'])
+  DataMapper.auto_upgrade!
 end
 
 # controllers
